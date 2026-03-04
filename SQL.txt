@@ -1,0 +1,322 @@
+Database :
+===========
+CREATE DATABASE testDB;
+DROP DATABASE testDB;
+BACKUP DATABASE testDB TO DISK = 'D:\backups\testDB.bak';
+BACKUP DATABASE testDB TO DISK = 'D:\backups\testDB.bak' WITH DIFFERENTIAL;
+
+Table :
+========
+#New table
+CREATE TABLE Persons (
+    PersonID int,
+    LastName varchar(255),
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255)
+);
+
+
+#Create new table from existing
+CREATE TABLE TestTable AS
+SELECT customername, contactname
+FROM customers;
+
+
+DROP TABLE Shippers;
+TRUNCATE TABLE table_name;  //only remove all data's inside table
+
+ALTER TABLE Persons ADD DateOfBirth date;
+ALTER TABLE Persons DROP COLUMN DateOfBirth;
+ALTER TABLE Persons ALTER COLUMN DateOfBirth year; or
+ALTER TABLE table_name MODIFY COLUMN column_name datatype; or
+ALTER TABLE table_name MODIFY column_name datatype;
+
+
+Constraints:
+============
+
+NOT NULL - Ensures that a column cannot have a NULL value
+UNIQUE - Ensures that all values in a column are different
+PRIMARY KEY - A combination of a NOT NULL and UNIQUE. Uniquely identifies each row in a table
+FOREIGN KEY - Prevents actions that would destroy links between tables
+CHECK - Ensures that the values in a column satisfies a specific condition
+DEFAULT - Sets a default value for a column if no value is specified
+CREATE INDEX - Used to create and retrieve data from the database very quickly
+AUTO_INCREMENT
+
+
+Data Types :
+============
+INT
+VAR CHAR
+DATE
+TIME
+DATETIME
+YEAR
+BOOLEAN
+JSON
+UUID
+BLOB
+
+
+
+SELECT 
+=======
+SELECT * FROM Customers;
+SELECT Country FROM Customers;
+SELECT DISTINCT Country FROM Customers;
+SELECT * FROM Customers WHERE Country='Mexico';   
+SELECT * FROM Products ORDER BY Price;              //ASC
+SELECT * FROM Products ORDER BY Price DESC;
+
+SELECT * FROM Customers WHERE Country = 'Brazil' AND City = 'Rio de Janeiro' AND CustomerID > 50;
+SELECT * FROM Customers WHERE Country = 'Spain' AND (CustomerName LIKE 'G%' OR CustomerName LIKE 'R%');
+SELECT * FROM Customers WHERE Country = 'Spain' AND CustomerName LIKE 'G%' OR CustomerName LIKE 'R%';
+SELECT * FROM Customers WHERE Country = 'Spain' AND CustomerName LIKE 'G%';
+SELECT * FROM Customers WHERE Country = 'Germany' OR Country = 'Spain';
+SELECT * FROM Customers WHERE City = 'Berlin' OR CustomerName LIKE 'G%' OR Country = 'Norway';
+SELECT * FROM Customers WHERE Country = 'Spain' AND (CustomerName LIKE 'G%' OR CustomerName LIKE 'R%');
+SELECT * FROM Customers WHERE Country = 'Spain' AND CustomerName LIKE 'G%' OR CustomerName LIKE 'R%';
+SELECT * FROM Customers WHERE NOT Country = 'Spain';
+SELECT * FROM Customers WHERE CustomerName NOT LIKE 'A%';
+SELECT * FROM Customers WHERE CustomerID NOT BETWEEN 10 AND 60;
+SELECT * FROM Customers WHERE City NOT IN ('Paris', 'London');
+SELECT * FROM Customers WHERE NOT CustomerID > 50;
+SELECT * FROM Customers WHERE NOT CustomerId < 50;
+
+
+INSERT 
+=======
+INSERT INTO table_name (column1, column2, column3, ...) VALUES (value1, value2, value3, ...);
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+VALUES
+('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway'),
+('Greasy Burger', 'Per Olsen', 'Gateveien 15', 'Sandnes', '4306', 'Norway'),
+('Tasty Tee', 'Finn Egan', 'Streetroad 19B', 'Liverpool', 'L1 0AA', 'UK');
+
+
+NULL 
+=====
+If a field in a table is optional, it is possible to insert a new record or update a record without adding a value to this field. Then, the field will be saved with a NULL value.
+IS NULL operator is used to test for empty values
+IS NOT NULL operator is used to test for non-empty values 
+
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NULL;
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NOT NULL;
+
+
+UPDATE 
+=======
+UPDATE Customers SET ContactName='Juan' WHERE Country='Mexico';
+UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1;
+UPDATE Customers SET ContactName='Juan';  // All records will be updated is there is no WHERE
+
+
+DELETE 
+=======
+DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
+DELETE FROM Customers; // delete all records from table
+DROP TABLE Customers; //delete table
+
+Aggregate Functions
+===================
+
+MIN() - returns the smallest value within the selected column
+MAX() - returns the largest value within the selected column
+COUNT() - returns the number of rows in a set
+SUM() - returns the total sum of a numerical column
+AVG() - returns the average value of a numerical column
+Aggregate functions ignore null values (except for COUNT(*)).
+
+
+SELECT MIN(Price) FROM Products;
+SELECT MAX(Price) FROM Products;
+SELECT MIN(Price) AS min_price FROM Products; 
+SELECT Min(Price) AS min_price, CategoryID FROM Products GROUP BY CategoryID; 
+
+SELECT COUNT(*) FROM Products;
+SELECT COUNT(ProductName) FROM Products;  // if the ProductName is NULL(Empty), it won't count
+SELECT COUNT(ProductID) FROM Products WHERE Price > 20;
+SELECT COUNT(DISTINCT Name) FROM Products;
+SELECT COUNT(*) AS [Number of records] FROM Products;
+SELECT COUNT(*) AS [Number of records], CategoryID FROM Products GROUP BY CategoryID;
+
+
+SELECT SUM(Quantity) FROM OrderDetails;
+SELECT SUM(Quantity) AS [quantity_sum] FROM OrderDetails;
+SELECT SUM(Quantity) FROM OrderDetails WHERE ProductId = 11;
+SELECT OrderID, SUM(Quantity) AS [Total] FROM OrderDetails GROUP BY OrderID;
+SELECT SUM(Quantity * 10) FROM OrderDetails;
+SELECT SUM(Price * Quantity) FROM OrderDetails LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+
+SELECT AVG(Price) FROM Products; //NULL values are ignored.
+SELECT AVG(Price)FROM ProductsWHERE CategoryID = 1;
+SELECT AVG(Price) AS [average price] FROM Products;
+SELECT * FROM Products WHERE price > (SELECT AVG(price) FROM Products);
+SELECT AVG(Price) AS AveragePrice, CategoryID FROM Products GROUP BY CategoryID;
+
+LIKE 
+======
+// LIKE operator is used in a WHERE clause
+The percent sign % represents zero, one, or multiple characters
+The underscore sign _ represents one, single character
+SELECT * FROM Customers WHERE CustomerName LIKE 'a%';
+SELECT * FROM Customers WHERE city LIKE 'L_nd__';
+SELECT * FROM Customers WHERE city LIKE '%L%';
+SELECT * FROM Customers WHERE CustomerName LIKE 'La%';
+SELECT * FROM Customers WHERE CustomerName LIKE 'a%' OR CustomerName LIKE 'b%';
+SELECT * FROM Customers WHERE CustomerName LIKE 'b%s';
+SELECT * FROM Customers WHERE CustomerName LIKE '%or%';
+SELECT * FROM Customers WHERE CustomerName LIKE 'a__%';  //min 3 char
+SELECT * FROM Customers WHERE CustomerName LIKE '_r%';
+SELECT * FROM Customers WHERE Country LIKE 'Spain';
+
+IN
+====
+The IN operator allows you to specify multiple values in a WHERE clause.
+The IN operator is a shorthand for multiple OR conditions.
+SELECT * FROM Customers WHERE Country IN ('Germany', 'France', 'UK');
+SELECT * FROM Customers WHERE Country NOT IN ('Germany', 'France', 'UK');
+SELECT * FROM Customers WHERE CustomerID IN (SELECT CustomerID FROM Orders);
+SELECT * FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);
+
+BETWEEN
+==========
+SELECT * FROM Products WHERE Price BETWEEN 10 AND 20;
+SELECT * FROM Products WHERE Price NOT BETWEEN 10 AND 20;
+SELECT * FROM Products WHERE Price BETWEEN 10 AND 20 AND CategoryID IN (1,2,3);
+SELECT * FROM Products WHERE ProductName BETWEEN 'Carnarvon Tigers' AND 'Mozzarella di Giovanni' ORDER BY ProductName;
+SELECT * FROM Products WHERE ProductName BETWEEN "Carnarvon Tigers" AND "Chef Anton's Cajun Seasoning" ORDER BY ProductName;
+SELECT * FROM Products WHERE ProductName NOT BETWEEN 'Carnarvon Tigers' AND 'Mozzarella di Giovanni' ORDER BY ProductName;
+SELECT * FROM Orders WHERE OrderDate BETWEEN #07/01/1996# AND #07/31/1996#;
+or
+SELECT * FROM Orders WHERE OrderDate BETWEEN '1996-07-01' AND '1996-07-31';
+
+
+ALIAS
+======
+SELECT CustomerID AS ID FROM Customers;
+SELECT CustomerID AS ID, CustomerName AS Customer FROM Customers;
+SELECT ProductName AS [My Great Products] FROM Products;
+SELECT ProductName AS "My Great Products" FROM Products;
+SELECT CustomerName, Address + ', ' + PostalCode + ' ' + City + ', ' + Country AS Address FROM Customers;
+or
+SELECT CustomerName, CONCAT(Address,', ',PostalCode,', ',City,', ',Country) AS Address FROM Customers; //MySQL
+or
+SELECT CustomerName, (Address || ', ' || PostalCode || ' ' || City || ', ' || Country) AS Address FROM Customers; //Oracle
+
+SELECT * FROM Customers AS Persons;
+SELECT o.OrderID, o.OrderDate, c.CustomerName FROM Customers AS c, Orders AS o WHERE c.CustomerName='Around the Horn' AND c.CustomerID=o.CustomerID;
+SELECT Orders.OrderID, Orders.OrderDate, Customers.CustomerName FROM Customers, Orders WHERE Customers.CustomerName='Around the Horn' AND Customers.CustomerID=Orders.CustomerID;
+
+
+Different Types of SQL JOINs
+===============================
+Here are the different types of the JOINs in SQL:
+
+(INNER) JOIN: Returns records that have matching values in both tables
+LEFT (OUTER) JOIN: Returns all records from the left table, and the matched records from the right table
+RIGHT (OUTER) JOIN: Returns all records from the right table, and the matched records from the left table
+FULL (OUTER) JOIN: Returns all records when there is a match in either left or right table
+
+
+INNER JOIN
+============
+=> JOIN and INNER JOIN will return the same result.
+=> INNER is the default join type for JOIN, so when you write JOIN the parser actually writes INNER JOIN.
+
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName FROM Products JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+SELECT ProductID, ProductName, CategoryName FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+
+LEFT JOIN
+===========
+The LEFT JOIN keyword returns all records from the left table (table1), and the matching records from the right table (table2). The result is 0 records from the right side, if there is no match.
+
+SELECT column_name(s) FROM table1 LEFT JOIN table2 ON table1.column_name = table2.column_name;
+SELECT Customers.CustomerName, Orders.OrderID FROM Customers LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID ORDER BY Customers.CustomerName;
+
+RIGHT JOIN
+===========
+The RIGHT JOIN keyword returns all records from the right table (table2), and the matching records from the left table (table1). The result is 0 records from the left side, if there is no match.
+
+SELECT column_name(s) FROM table1 RIGHT JOIN table2 ON table1.column_name = table2.column_name;
+SELECT Orders.OrderID, Employees.LastName, Employees.FirstName FROM Orders RIGHT JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID ORDER BY Orders.OrderID;
+
+FULL JOIN
+===========
+The FULL OUTER JOIN keyword returns all records when there is a match in left (table1) or right (table2) table records.
+
+Tip: FULL OUTER JOIN and FULL JOIN are the same.
+
+SELECT column_name(s) FROM table1 FULL OUTER JOIN table2 ON table1.column_name = table2.column_name WHERE condition;
+SELECT Customers.CustomerName, Orders.OrderID FROM Customers FULL OUTER JOIN Orders ON Customers.CustomerID=Orders.CustomerID ORDER BY Customers.CustomerName;
+
+
+GROUP BY
+==========
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country;
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country ORDER BY COUNT(CustomerID) DESC;
+SELECT Shippers.ShipperName, COUNT(Orders.OrderID) AS NumberOfOrders FROM Orders LEFT JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID GROUP BY ShipperName;
+
+HAVING
+========
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 5;
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 5 ORDER BY COUNT(CustomerID) DESC;
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders FROM (Orders INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID) GROUP BY LastName HAVING COUNT(Orders.OrderID) > 10;
+
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders FROM Orders INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID WHERE LastName = 'Davolio' OR LastName = 'Fuller' GROUP BY LastName HAVING COUNT(Orders.OrderID) > 25;
+
+
+COMMENTS
+=========
+--  single line comment
+Multi-line comments start with /* and end with */.
+
+
+
+
+
+
+
+
+=======================================================================================================================================================================================
+
+
+SQL commands are typically categorized into four main types, each serving a distinct purpose in managing and interacting with databases. Here's a breakdown:
+
+🧱 1. DDL – Data Definition Language
+Used to define and modify the structure of database objects like tables, schemas, indexes.
+- CREATE – Creates a new table or database object
+- ALTER – Modifies an existing object
+- DROP – Deletes an object
+- TRUNCATE – Removes all records from a table, but keeps the structure
+
+📝 2. DML – Data Manipulation Language
+Used to manage data within tables.
+- SELECT – Retrieves data
+- INSERT – Adds new data
+- UPDATE – Modifies existing data
+- DELETE – Removes data
+
+🔐 3. DCL – Data Control Language
+Controls access to data in the database.
+- GRANT – Gives user access privileges
+- REVOKE – Removes access privileges
+
+🔄 4. TCL – Transaction Control Language
+Manages changes made by DML statements and controls transaction behavior.
+- COMMIT – Saves changes
+- ROLLBACK – Undoes changes
+- SAVEPOINT – Sets a point to roll back to
+- SET TRANSACTION – Defines transaction properties
+
+These four categories form the backbone of SQL operations. Some sources also include a fifth type: DQL (Data Query Language), which focuses specifically on the SELECT statement.
+
+
+
+
+

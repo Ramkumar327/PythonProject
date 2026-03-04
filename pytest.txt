@@ -1,0 +1,247 @@
+Pytest
+=======
+Pytest is a simple and scalable testing framework in python. It helps to write and execute testcases.
+
+It is widely used for
+1. Unit testing
+2. Functional testing
+3. API testing
+
+
+Installation:
+==============
+=> pip install pytest
+=> pip install pytest-html
+=> pip install pytest-xdist(Parallel execution)
+
+
+to verify
+pytest --version
+
+
+workflow:
+==========
+1. Test Discovery
+2. Fixture Resolution
+3. Parameterization Expansion
+4. Test Execution
+5. Hook Execution
+6. Reporting
+
+
+To work with pytest, all testcases filenames should start with test_*.py and testcase method should start with test_*()
+
+when execute pytest in cmd, it will read pytest.int conftest.py and all test_*.py files and all testcase methods start with test_
+
+
+1. Test Discovery
+- File start with test_ or end with _test
+- function start with test_
+- Class start with Test (no __init__)
+
+
+
+2. Fixture
+-  @pytest.fixture(autouse=True)   => Before test execution, this will be called automatically
+-  @pytest.fixture => Before test execution, this will be called if we keep the method name in parameter section
+Example :
+def test_add(setup_teardown):
+    pass
+
+
+fixture:
+- fixture is used for setup and teardown
+- @pytest.fixture
+- @pytest.fixture(autouse=True)
+- scopes
+  @pytest.fixture(scope="function")
+ 
+  -> function  -  every test
+  -> class     -  Once per class
+  -> module    -  Once per file
+  -> session   -  once per session
+
+
+3. Parameterization Expansion
+@pytest.mark.parametrize("a,b,expected", csv_reader("test_data.csv"))
+@pytest.mark.parametrize("a,b,res", [(2,3,5), (1,4,5), (0,0,0)])
+
+4. Test Execution
+- Executing all testcases present in tests\ directory
+
+5. Hook Execution
+Hooks mean framework level customization
+Hooks are predefined function that allows to
+- modify pytest behavior
+- inject logic into execution flow
+- customize reporting
+- Add cli option
+- control test execution
+
+It should be written inside conftest.oy
+
+
+Hook execution flow
+1. pytest_configure
+2. pytest_sessionstart
+3. pytest_collection_modifyitems
+4. pytest_runtest_setup
+5. pytest_runtest_call
+6. pytest_runtest_teardown
+7. pytest_runtest_makereport
+8. pytest_sessionfinish
+
+1. pytest_configure
+- This is for reg markers and global initialization
+
+def _configure(config):
+  config.addinivalue_line(
+    "markers","smoke:mark test as smoke"
+  )
+
+2. pytest_sessionstart
+- DB connection start
+- opening report logs etc
+
+def pytest_sessionstart(session):
+  print("session Started")
+
+3. pytest_collection_modifyitems
+- Reorder the test
+- Add dynamic markers
+- Skip testcase based on environment or dynamically
+
+def pytest_collection_modifyitems(config, items):
+  pass
+
+4. pytest_runtest_setup
+- Run before each testcase execution
+
+def pytest_runtest_setup(item):
+   print("Before : ", item.name)
+
+5. pytest_runtest_call
+ - Executing testcase
+
+6. pytest_runtest_teardown
+ - Run after each testcase execution
+
+def pytest_runtest_teardown(item):
+   print("Before : ", item.name)
+
+
+7. pytest_runtest_makereport
+Used to capture
+  - test status
+  - Screenshot on failure
+  - logging
+  - custom reporting
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item,call):
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.when == "call" and report.failed:
+        print("Test failed",item.name)
+
+
+This is widely used in allure report integration
+
+
+8. pytest_session_finish(session,exitstatus)
+closing DB
+sending email and cleanup resources
+
+def pytest_session_finish(session,exitstatus):
+    print("Execution completed")
+
+
+Hook decorators
+@pytest.hookimpl(tryfirst=true) - Run before other implementaion
+@pytest.hookimpl(trylast=true) - Run after other implementaion
+@pytest.hookimpl(hookwrapper=true) - allows execution with yield
+ 
+
+
+
+
+
+
+pytest.ini
+===========
+This is the configuration file. For every run, html report will be generated with detail step
+
+[pytest]
+markers =
+    smoke: mark a test as part of the smoke test suite
+    regression: mark a test as part of the regression test suite
+    skip: mark a test to be skipped
+    skipif: mark a test to be conditionally skipped
+    xfail: mark a test as expected to fail
+
+addopts = -v --capture=tee-sys --html=report.html --self-contained-html
+
+conftest.py
+============
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def setup_teardown():
+    print("Setting up resources.....")
+    yield
+    print("Tearing down resources.....")
+
+
+execution command:
+==================
+pytest
+
+pytest --html=report.html
+pytest -m smoke
+pytest -v -s
+
+pytest -m smoke -v -s --html=report.html
+
+pytest -n 4 (run the test in 4 browsers parallel)
+
+
+
+
+pytest - run all testcases from all file
+pytest test_sample.py - Run all testcases from specific file
+pytest test_sample.py::test_add - Run specific testcase
+
+
+
+test_sample.py
+================
+import pytest
+
+def add(a,b):
+    return a + b
+
+
+
+@pytest.mark.smoke
+# @pytest.mark.skipif(5 > 3, reason="Skipping this test based on condition")
+def test_add():
+    try:
+        assert add(2,3) == 5
+        print("Test passed!")
+    except AssertionError as e:
+        print("Test failed!")
+
+
+@pytest.mark.regression
+# @pytest.mark.skip(reason="Skipping this test for now")
+@pytest.mark.xfail(reason="Expected failure due to known issue")
+def test_sub():
+    assert add(5,3) == 6
+
+
+@pytest.mark.parametrize("a,b,res", [(2,3,5), (1,4,5), (0,0,0)])
+def test_manyadds(a,b,res):
+    print(f"Testing add({a}, {b}) == {res}")
+    assert add(a,b) == res

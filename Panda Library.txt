@@ -1,0 +1,194 @@
+Panda Library :
+==================
+Pandas is a Python library. Pandas is used to analyze data.
+
+Pandas is a powerful and widely-used open-source Python library designed for data analysis and manipulation. It's especially handy when working with structured data like tables from spreadsheets, SQL databases, or CSV files.
+🔧 Key Features of Pandas
+- Data Structures:
+	- Series: One-dimensional labeled array.
+	- DataFrame: Two-dimensional table with labeled axes (rows and columns).
+- Data Cleaning: Handle missing values, remove duplicates, and fix formatting issues.
+- Data Transformation: Merge, join, group, and reshape datasets.
+- Data Visualization: Integrates with libraries like Matplotlib and Seaborn for plotting.
+- File I/O: Easily read/write data from CSV, Excel, JSON, SQL, and more.
+
+
+
+Pandas is one of the most important Python libraries for data analysis and manipulation.
+I’ll teach you in a layered way:
+1. Basics → 2. Important Objects (Series & DataFrame) → 3. Operations → 4. Data Cleaning → 5.
+Grouping & Aggregation → 6. Merging/Joining → 7. File Handling (Excel, CSV, etc.) → 8. Advanced Pandas.
+
+
+
+## 1. What is Pandas?
+- Pandas = “Python Data Analysis Library”.
+- Built on NumPy (numerical library).
+- It helps to read, clean, analyze, and visualize data easily.
+
+Imagine Pandas as Excel inside Python but with 100x more power.
+
+
+
+## 2. Installing Pandas
+
+pip install pandas
+
+
+import pandas as pd
+
+
+
+## 3. Core Data Structures in Pandas
+There are two main objects in Pandas:
+### (a) Series
+- A 1D labeled array (like one column in Excel).
+
+import pandas as pd
+# Create a Series
+s = pd.Series([10, 20, 30, 40], index=['a', 'b', 'c', 'd'])
+print(s)
+
+
+Output :
+a 10
+b 20
+c 30
+d 40
+
+
+
+### (b) DataFrame
+- A 2D table (rows & columns).
+- Like an Excel sheet or SQL table.
+
+data = {
+'Name': ['Ram', 'Sneha', 'Kumar'],
+'Age': [25, 28, 30],
+'City': ['Chennai', 'Delhi', 'Mumbai']
+}
+df = pd.DataFrame(data)
+print(df)
+
+
+Output
+  Name Age City
+0 Ram 25 Chennai
+1 Sneha 28 Delhi
+2 Kumar 30 Mumbai
+
+
+
+## 4. Reading & Writing Data
+Pandas can handle CSV, Excel, JSON, SQL, etc.
+
+# Read CSV
+df = pd.read_csv("data.csv")
+
+# Read Excel
+df = pd.read_excel("data.xlsx")
+
+# Save back
+df.to_csv("output.csv", index=False)
+df.to_excel("output.xlsx", index=False)
+
+
+## 5. Exploring Data
+Once you load data, these commands help:
+
+
+df.head() # First 5 rows
+df.tail() # Last 5 rows
+df.shape # Rows & columns
+df.info() # Data types
+df.describe() # Stats (mean, min, max)
+df.columns # Column names
+df['Age'] # Select one column
+df[['Name','Age']] # Multiple columns
+df.iloc[0] # First row by index
+df.loc[0, 'Name'] # Specific cell
+
+
+## 6. Data Selection & Filtering
+
+
+# Rows where Age > 25
+df[df['Age'] > 25]
+# Multiple conditions
+df[(df['Age'] > 25) & (df['City'] == 'Delhi')]
+
+
+## 7. Adding / Updating / Deleting
+
+# Add new column
+df['Salary'] = [30000, 40000, 50000]
+
+# Update
+df['Age'] = df['Age'] + 1
+
+# Delete column
+df.drop('City', axis=1, inplace=True)
+
+
+## 8. Handling Missing Data
+
+
+df.isnull().sum() # Check missing
+df.fillna(0, inplace=True) # Replace with 0
+df.dropna(inplace=True) # Drop missing rows
+
+
+## 9. Grouping & Aggregation
+
+
+# Group by City and find average Age
+df.groupby('City')['Age'].mean()
+# Multiple functions
+df.groupby('City').agg({'Age':'mean', 'Salary':'sum'})
+
+
+## 10. Sorting
+
+
+df.sort_values(by='Age', ascending=False)
+
+
+## 11. Merging & Joining
+
+
+df1 = pd.DataFrame({'ID':[1,2,3],'Name':['Ram','Sneha','Kumar']})
+df2 = pd.DataFrame({'ID':[1,2,3],'Salary':[30000,40000,50000]})
+pd.merge(df1, df2, on='ID')
+
+
+## 12. Pivot Table
+Like Excel pivot:
+
+
+df.pivot_table(values='Salary', index='City', aggfunc='mean')
+
+
+## 13. Exporting Clean Data
+
+
+df.to_csv("cleaned.csv", index=False)
+df.to_excel("report.xlsx", index=False)
+
+
+## 14. Advanced Features
+- Datetime handling
+
+df['JoinDate'] = pd.to_datetime(df['JoinDate'])
+df['Year'] = df['JoinDate'].dt.year
+
+- Apply functions
+
+df['Bonus'] = df['Salary'].apply(lambda x: x*0.1)
+
+■ So Pandas workflow is:
+1. Read data
+2. Explore data
+3. Clean data
+4. Transform & Analyze
+5. Export / Save results
+
