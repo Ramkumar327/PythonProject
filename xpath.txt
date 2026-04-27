@@ -1,0 +1,113 @@
+
+XPath (XML Path Language) is used to locate elements on a webpage in Selenium. Robot Framework supports XPath through the SeleniumLibrary.
+
+
+1. Basic XPath Syntax
+
+//tagname[@attribute='value']
+
+✅ Finds an element by tag and attribute.
+
+Example
+
+//input[@id='username']
+
+//[@name='password']
+
+//h1[text()='Welcome']
+
+//p[contains(text(),'Click here')]
+
+//div[contains(@class, 'error')]
+
+//input[starts-with(@id, 'user')]
+
+//div[ends-with(@class, '_container')]
+
+//input[@type='text' and @name='email']
+
+//button[2]
+
+//button[last()]
+
+//div/span   (//parent/child	Selects a direct child element)
+
+//div//span   (//parent//child	Selects a child at any level (descendant))
+
+Find Element by Parent/Child Relationship
+
+//div[@class='container']//a[@href='/home']
+
+Find Element by Sibling
+
+//label[text()='Email']/following-sibling::input
+
+
+
+
+XPath Axes
+
+ancestor::	Finds all ancestors of an element.	//input[@id='email']/ancestor::form
+descendant::	Finds all descendants (children, grandchildren, etc.).	//div[@id='menu']/descendant::a
+following-sibling::	Finds elements that appear after the current node.	//h2/following-sibling::p
+preceding-sibling::	Finds elements before the current node.	//input[@id='username']/preceding-sibling::label
+
+
+XPath Type	Description
+child::	Selects all child nodes of the current node
+parent::	Selects the parent of the current node
+descendant::	Selects all descendants (children, grandchildren…) of the current node
+ancestor::	Selects all ancestors (parents, grandparents…) of the current node
+following::	Selects everything in the document after the closing tag of the current node
+preceding::	Selects everything before the start tag of the current node
+following-sibling::	Selects siblings after the current node
+preceding-sibling::	Selects siblings before the current node
+self::	Selects the current node
+descendant-or-self::	Selects the current node and all its descendants
+ancestor-or-self::	Selects the current node and all its ancestors
+attribute::	Selects attributes of the current node
+
+
+Ancestor
+
+Ancestor → The parent, grandparent, great-grandparent… all the way up to the root.
+
+
+Term	Refers To	Example in XPath
+parent	Just one level up	parent::div
+ancestor	All levels up (parent, grandparent, etc.)	ancestor::div
+
+Example:
+
+<div class="grandparent">
+    <div class="parent">
+        <span class="child">Hello</span>
+    </div>
+</div>
+
+
+//span[@class='child']/parent::div → selects the  <div class="parent">
+//span[@class='child']/ancestor::div → selects both:
+<div class="grandparent">
+<div class="parent">
+
+//span[@class='child']/ancestor::div[@class='grandparent'] → selects the <div class="grandparent">
+
+Descendant
+
+The descendant axis selects all elements below the current node in the DOM tree—this includes children, grandchildren, great-grandchildren, and so on.
+
+Example:
+
+<div class="product">
+    <h2>Smartphone</h2>
+    <div class="details">
+        <span class="price">$499</span>
+    </div>
+</div>
+
+
+//div[@class='product']/descendant::span[@class='price']
+
+
+
