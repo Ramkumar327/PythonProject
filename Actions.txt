@@ -1,0 +1,357 @@
+ 
+🔹 1. Page Navigation Actions
+ 
+✅ page.goto()
+ 
+Opens a URL.
+ 
+page.goto("https://example.com")
+ 
+👉 Waits for page load automatically.
+ 
+ 
+---
+ 
+✅ page.reload()
+ 
+Reloads the page.
+ 
+page.reload()
+ 
+ 
+---
+ 
+✅ page.go_back() / page.go_forward()
+ 
+Browser navigation.
+ 
+page.go_back()
+page.go_forward()
+ 
+ 
+---
+ 
+🔹 2. Input Field Actions
+ 
+These are very important in real-time automation.
+ 
+ 
+---
+ 
+✅ locator.fill()
+ 
+Clears existing text and fills new value.
+ 
+page.locator("#username").fill("ramkumar")
+ 
+👉 Best for forms
+👉 Replaces entire text
+ 
+ 
+---
+ 
+✅ locator.type()
+ 
+Types like a real user (character by character).
+ 
+page.locator("#username").type("ramkumar")
+ 
+👉 Useful for testing typing behavior
+👉 Slower than fill()
+ 
+ 
+---
+ 
+✅ locator.press()
+ 
+Press keyboard keys.
+ 
+page.locator("#username").press("Enter")
+ 
+👉 Can use keys like:
+ 
+"Enter"
+ 
+"Tab"
+ 
+"ArrowDown"
+ 
+ 
+ 
+---
+ 
+🔥 Difference (Important Interview Point)
+ 
+Method Behavior
+ 
+fill() Clears and enters text instantly
+type() Types slowly like user
+press() Keyboard key action
+ 
+ 
+ 
+---
+ 
+🔹 3. Click Actions
+ 
+ 
+---
+ 
+✅ locator.click()
+ 
+Clicks on element.
+ 
+page.locator("button#login").click()
+ 
+👉 Auto-waits for:
+ 
+element visible
+ 
+element enabled
+ 
+ 
+ 
+---
+ 
+Advanced options
+ 
+locator.click(button="right")   # Right click
+locator.click(click_count=2)    # Double click
+ 
+ 
+---
+ 
+✅ locator.dblclick()
+ 
+Double click.
+ 
+locator.dblclick()
+ 
+ 
+---
+ 
+✅ locator.check() / uncheck()
+ 
+For checkboxes.
+ 
+page.locator("#agree").check()
+page.locator("#agree").uncheck()
+ 
+ 
+---
+ 
+🔹 4. Dropdown Actions
+ 
+ 
+---
+ 
+✅ locator.select_option()
+ 
+page.locator("#country").select_option("India")
+ 
+OR
+ 
+select_option(value="IN")
+select_option(label="India")
+ 
+ 
+---
+ 
+🔹 5. Mouse Actions
+ 
+ 
+---
+ 
+✅ locator.hover()
+ 
+Mouse hover.
+ 
+page.locator("#menu").hover()
+ 
+ 
+---
+ 
+✅ Drag and Drop
+ 
+page.locator("#drag").drag_to(page.locator("#drop"))
+ 
+ 
+---
+ 
+🔹 6. File Upload
+ 
+ 
+---
+ 
+✅ locator.set_input_files()
+ 
+page.locator("input[type='file']").set_input_files("resume.pdf")
+ 
+ 
+---
+ 
+🔹 7. Keyboard Actions
+ 
+ 
+---
+ 
+✅ page.keyboard.type()
+ 
+page.keyboard.type("Hello")
+ 
+ 
+---
+ 
+✅ page.keyboard.press()
+ 
+page.keyboard.press("Enter")
+ 
+ 
+---
+ 
+✅ Combination keys
+ 
+page.keyboard.press("Control+A")
+page.keyboard.press("Control+C")
+ 
+ 
+---
+ 
+🔹 8. Scroll Actions
+ 
+ 
+---
+ 
+Scroll using mouse
+ 
+page.mouse.wheel(0, 500)
+ 
+ 
+---
+ 
+Scroll into view
+ 
+locator.scroll_into_view_if_needed()
+ 
+ 
+---
+ 
+🔹 9. Wait Actions (Very Important)
+ 
+Playwright is auto-waiting, but sometimes manual wait needed.
+ 
+ 
+---
+ 
+✅ locator.wait_for()
+ 
+locator.wait_for(state="visible")
+ 
+ 
+---
+ 
+✅ page.wait_for_timeout() (not recommended usually)
+ 
+page.wait_for_timeout(3000)
+ 
+👉 Avoid in real projects (bad practice)
+ 
+ 
+---
+ 
+🔹 10. Screenshot & Recording
+ 
+ 
+---
+ 
+✅ Screenshot
+ 
+page.screenshot(path="page.png")
+ 
+ 
+---
+ 
+Element screenshot
+ 
+locator.screenshot(path="element.png")
+ 
+ 
+---
+ 
+🔹 11. Frame Actions
+ 
+ 
+---
+ 
+Switch to iframe
+ 
+frame = page.frame(name="frameName")
+frame.locator("#input").fill("text")
+ 
+ 
+---
+ 
+🔹 12. Multiple Tabs / Windows
+ 
+ 
+---
+ 
+Open new tab
+ 
+new_page = context.new_page()
+ 
+ 
+---
+ 
+Handle popup
+ 
+with page.expect_popup() as popup_info:
+    page.click("#open")
+popup = popup_info.value
+ 
+ 
+---
+ 
+🔹 13. Assertions (Quick mention)
+ 
+expect(locator).to_be_visible()
+expect(locator).to_have_text("Success")
+ 
+ 
+---
+ 
+🔹 Real-Time Example (End-to-End)
+ 
+from playwright.sync_api import sync_playwright
+ 
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=False)
+    page = browser.new_page()
+ 
+    page.goto("https://example.com/login")
+ 
+    page.locator("#username").fill("admin")
+    page.locator("#password").fill("password")
+ 
+    page.locator("#login").click()
+ 
+    page.locator("#dashboard").wait_for()
+ 
+    page.screenshot(path="dashboard.png")
+ 
+    browser.close()
+ 
+ 
+---
+ 
+🔥 Key Takeaways (Interview Ready)
+ 
+Playwright actions are auto-waiting
+ 
+Prefer locator-based actions (not page.click)
+ 
+fill() is faster than type()
+ 
+Avoid wait_for_timeout()
+ 
+Handles frames, popups, downloads easily

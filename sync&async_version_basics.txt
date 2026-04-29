@@ -1,0 +1,71 @@
+Playwright provides two ways to write code in Python:
+Synchronous (sync)
+Asynchronous (async)
+
+
+👉 playwright.sync_api is the synchronous version of Playwright.
+✔ What “sync” means
+Code runs step by step
+Easier to understand
+No need for async/await
+
+
+✔ Example
+Python
+from playwright.sync_api import sync_playwright
+👉 Here you are importing the sync version API.
+
+
+🔹 What is sync_playwright()?
+sync_playwright() is a function used to: 👉 Start and stop the Playwright engine
+Think of it like:
+“Opening and closing the Playwright environment”
+🔁 How it works internally
+Python
+from playwright.sync_api import sync_playwright
+ 
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+Step-by-step:
+1. sync_playwright()
+Starts Playwright
+Initializes browsers (Chromium, Firefox, WebKit)
+2. as p
+p is your Playwright object
+Used to access browsers:
+p.chromium
+p.firefox
+p.webkit
+3. with block
+Automatically:
+Starts Playwright
+Closes it after execution
+👉 So you don’t need manual cleanup
+
+
+🔹 Simple Analogy
+Think like this:
+playwright.sync_api → Library (tools)
+sync_playwright() → Power switch 🔌
+p → Control panel 🎮
+🔹 Full Example with Explanation
+Python
+from playwright.sync_api import sync_playwright
+ 
+with sync_playwright() as p:   # Start Playwright
+    browser = p.chromium.launch(headless=False)  # Open browser
+    page = browser.new_page()  # New tab
+    page.goto("https://example.com")  # Navigate
+    print(page.title())  # Get title
+    browser.close()  # Close browser
+
+👉 Async version uses:
+Python
+from playwright.async_api import async_playwright
+
+
+🎯 Key Points to Remember
+playwright.sync_api → Synchronous Playwright module
+sync_playwright() → Starts Playwright session
+p → Gives access to browsers
+with → Handles setup + cleanup automatically

@@ -1,0 +1,178 @@
+Here’s a detailed, real-world Python Playwright script with explanation so you can both understand and use it in automation (like your QA work).
+🔧 1. Install & Setup
+pip install playwright
+playwright install
+
+
+🧪 2. Full Example – End-to-End Test Script
+✅ Scenario:
+Open browser
+Go to website
+Login
+Verify dashboard
+Take screenshot
+Close browser
+
+
+🧾 Python Playwright Script (Sync Version)
+from playwright.sync_api import sync_playwright
+ 
+def test_login():
+    with sync_playwright() as p:
+        # Launch browser
+        browser = p.chromium.launch(headless=False)
+ 
+        # Create new context
+        context = browser.new_context()
+ 
+        # Open new page
+        page = context.new_page()
+ 
+        # Navigate to URL
+        page.goto("https://example.com/login")
+ 
+        # Enter username
+        page.fill("input[name='username']", "myuser")
+ 
+        # Enter password
+        page.fill("input[name='password']", "mypassword")
+ 
+        # Click login button
+        page.click("button[type='submit']")
+ 
+        # Wait for dashboard element
+        page.wait_for_selector("text=Dashboard")
+ 
+        # Assertion
+        assert page.locator("text=Dashboard").is_visible()
+ 
+        # Take screenshot
+        page.screenshot(path="dashboard.png")
+ 
+        # Close browser
+        browser.close()
+ 
+# Run test
+test_login()
+
+
+
+🧠 3. Line-by-Line Explanation
+🔹 Import
+from playwright.sync_api import sync_playwright
+Using sync version (easy for beginners & Robot Framework users like you)
+🔹 Start Playwright
+with sync_playwright() as p:
+Initializes Playwright engine
+Automatically closes after execution
+🔹 Launch Browser
+browser = p.chromium.launch(headless=False)
+chromium → Chrome-based browser
+headless=False → visible browser
+🔹 Context (Important for QA)
+context = browser.new_context()
+Like a fresh browser session
+No cache, no cookies (clean test)
+🔹 Open Page
+page = context.new_page()
+🔹 Navigate
+page.goto("https://example.com/login")
+🔹 Interactions
+page.fill("input[name='username']", "myuser")
+page.fill("input[name='password']", "mypassword")
+page.click("button[type='submit']")
+🔹 Wait (Auto-wait feature)
+page.wait_for_selector("text=Dashboard")
+Playwright automatically waits for elements
+🔹 Assertion
+assert page.locator("text=Dashboard").is_visible()
+🔹 Screenshot
+page.screenshot(path="dashboard.png")
+🔹 Close
+browser.close()
+
+
+
+
+🚀 4. Better Version (Reusable Framework Style)
+class LoginPage:
+ 
+    def __init__(self, page):
+        self.page = page
+ 
+    def navigate(self):
+        self.page.goto("https://example.com/login")
+ 
+    def login(self, username, password):
+        self.page.fill("#username", username)
+        self.page.fill("#password", password)
+        self.page.click("#loginBtn")
+ 
+    def is_dashboard_visible(self):
+        return self.page.locator("text=Dashboard").is_visible()
+ 
+ 
+def run_test():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+ 
+        login_page = LoginPage(page)
+ 
+        login_page.navigate()
+        login_page.login("admin", "admin123")
+ 
+        assert login_page.is_dashboard_visible()
+ 
+        browser.close()
+ 
+ 
+run_test()
+
+
+⚡ 5. Key Playwright Concepts (Important for Interview)
+✅ Auto Waiting
+No need for sleep()
+Handles dynamic UI automatically
+✅ Locator Strategy
+page.locator("text=Login")
+page.locator("#id")
+page.locator(".class")
+page.locator("input[name='email']")
+✅ Actions
+page.click()
+page.fill()
+page.type()
+page.hover()
+page.select_option()
+✅ Assertions
+assert page.title() == "Home"
+assert page.locator("text=Success").is_visible()
+🔥 6. Async Version (Advanced)
+import asyncio
+from playwright.async_api import async_playwright
+ 
+async def run():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+ 
+        await page.goto("https://example.com")
+        await page.screenshot(path="example.png")
+ 
+        await browser.close()
+ 
+asyncio.run(run())
+🎯 7. Real QA Usage (Your Profile)
+Since you're working with:
+Python
+Robot Framework
+Automation
+
+
+
+👉 Playwright is used for:
+UI Automation
+API Testing
+Parallel Execution
+Faster than Selenium

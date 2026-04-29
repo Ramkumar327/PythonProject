@@ -1,0 +1,72 @@
+Locators in playwright:
+========================
+
+playwright automatically waits for 
+- Element to be visible
+- Element to be enabled
+- Element to be stable
+
+
+
+
+page.get_by_text("Login" , exact=True).click()   **************************
+page.get_by_role("button", name="Login").click()
+page.get_by_label("Username").fill("admin")
+
+page.get_by_placeholder("Enter username").fill("admin")
+page.get_by_title("Close").click()
+
+
+page.locator("//input[@id='username']").fill("admin")  ********
+page.locator("#username").fill("admin")
+
+
+page.fill(selector,value)
+page.fill("#username","admin")  clearing the existing text and filling the full value at a time
+
+
+page.type("#username","admin")  do not clear the existing value and type a char by char
+
+
+
+page.locator("text=Login")  ************************************************
+page.locator("#id") 
+page.locator(".class")
+
+
+for ID: page.fill("#username","admin") or page.locator("#username").fill("admin")
+for class : page.fill(".username","admin") or page.locator(".username").fill("admin")
+
+
+
+name attribute: page.locator("input[name='email']")
+
+
+
+
+
+
+First element click : page.locator("//input[@id='username']").first.click()
+nth element click : page.locator("//input[@id='username']").nth(2).click()
+
+
+
+Important locator actions:
+===========================
+locator.click()
+locator.fill("text")
+locator.type("text")
+locator.clear()
+locator.check()
+locator.uncheck()
+locator.hover()
+locator.press("Enter")
+
+
+
+
+important function:
+====================
+page.wait_for_selector("text=Dashboard") or page.locator("text=Dashboard").wait_for()
+page.locator("text=Dashboard").is_visible()
+

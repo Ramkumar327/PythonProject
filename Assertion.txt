@@ -1,0 +1,269 @@
+Assertion:
+==========
+Playwright assertions are used to verify expected behavior in your test—basically, they decide whether your test passes or fails. In Playwright (especially Python), assertions are powerful because they come with auto-waiting, which is a big advantage over traditional frameworks like Selenium.
+ 
+
+ 
+🔹 1. What is an Assertion in Playwright?
+ 
+An assertion checks if something is true in your application.
+ 
+Example:
+ 
+Is the element visible?
+ 
+Does the text match?
+ 
+Is the URL correct?
+ 
+ 
+If the condition is true → test passes
+If false → test fails
+ 
+ 
+---
+ 
+🔹 2. Import Assertion
+ 
+In Python Playwright:
+ 
+from playwright.sync_api import expect
+ 
+ 
+---
+ 
+🔹 3. Why Playwright Assertions are Special
+ 
+Unlike normal assertions (assert in Python), Playwright assertions: 
+✔ Automatically wait
+✔ Retry until timeout
+✔ Reduce flakiness
+ 
+Example:
+ 
+expect(page.locator("#login")).to_be_visible()
+ 
+➡ It will wait until the element becomes visible (default timeout ~5s)
+ 
+
+ 
+🔹 4. Types of Assertions
+ 
+✅ A. Element Assertions (Most Important)
+ 
+1. to_be_visible()
+ 
+expect(page.locator("#submit")).to_be_visible()
+ 
+✔ Checks element is visible on UI
+ 
+ 
+---
+ 
+2. to_be_hidden()
+ 
+expect(page.locator("#loading")).to_be_hidden()
+ 
+✔ Useful for loaders/spinners
+ 
+ 
+---
+ 
+3. to_be_enabled()
+ 
+expect(page.locator("#btn")).to_be_enabled()
+ 
+ 
+---
+ 
+4. to_be_disabled()
+ 
+expect(page.locator("#btn")).to_be_disabled()
+ 
+ 
+---
+ 
+5. to_have_text()
+ 
+expect(page.locator("#msg")).to_have_text("Login Successful")
+ 
+✔ Exact match
+ 
+ 
+---
+ 
+6. to_contain_text()
+ 
+expect(page.locator("#msg")).to_contain_text("Success")
+ 
+✔ Partial match
+ 
+ 
+---
+ 
+7. to_have_attribute()
+ 
+expect(page.locator("#input")).to_have_attribute("type", "text")
+ 
+ 
+---
+ 
+8. to_have_value()
+ 
+expect(page.locator("#username")).to_have_value("Ram")
+ 
+ 
+---
+ 
+9. to_be_checked()
+ 
+expect(page.locator("#checkbox")).to_be_checked()
+ 
+ 
+---
+ 
+✅ B. Page Assertions
+ 
+1. to_have_url()
+ 
+expect(page).to_have_url("https://example.com/dashboard")
+ 
+ 
+---
+ 
+2. to_have_title()
+ 
+expect(page).to_have_title("Dashboard")
+ 
+ 
+---
+ 
+✅ C. API / Response Assertions
+ 
+response = page.request.get("https://api.example.com/data")
+expect(response).to_be_ok()
+ 
+✔ Checks status code is 200–299
+ 
+ 
+---
+ 
+🔹 5. Timeout in Assertions
+ 
+Default timeout: 5 seconds
+ 
+You can override:
+ 
+expect(page.locator("#msg")).to_have_text("Done", timeout=10000)
+ 
+➡ waits up to 10 seconds
+ 
+ 
+---
+ 
+🔹 6. Soft vs Hard Assertion
+ 
+🔸 Hard Assertion (default)
+ 
+Test stops immediately if failed:
+ 
+expect(page.locator("#msg")).to_have_text("Success")
+ 
+ 
+---
+ 
+🔸 Soft Assertion (custom approach)
+ 
+Playwright doesn’t have built-in soft assertion like TestNG, but you can handle manually:
+ 
+try:
+    expect(page.locator("#msg")).to_have_text("Success")
+except:
+    print("Assertion failed but continuing")
+ 
+ 
+---
+ 
+🔹 7. Difference: Playwright Expect vs Python assert
+ 
+Feature Playwright expect Python assert
+ 
+Auto-wait ✅ Yes ❌ No
+Retry ✅ Yes ❌ No
+UI friendly ✅ Yes ❌ No
+Recommended ✅ Always ❌ Avoid for UI
+ 
+ 
+ 
+---
+ 
+🔹 8. Real-Time Example (Login Test)
+ 
+from playwright.sync_api import sync_playwright, expect
+ 
+def test_login():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+ 
+        page.goto("https://example.com/login")
+ 
+        page.fill("#username", "admin")
+        page.fill("#password", "admin123")
+        page.click("#login")
+ 
+        # Assertion
+        expect(page.locator("#welcome")).to_have_text("Welcome Admin")
+        expect(page).to_have_url("https://example.com/dashboard")
+ 
+        browser.close()
+ 
+ 
+---
+ 
+🔹 9. Best Practices (Important for Interview)
+ 
+✔ Always use expect() instead of assert
+✔ Prefer locator-based assertions
+✔ Avoid time.sleep() → use auto-wait
+✔ Use meaningful assertions (text, visibility, state)
+✔ Keep assertions close to action
+ 
+ 
+---
+ 
+🔹 10. Common Mistakes
+ 
+❌ Using assert "text" in page.content()
+❌ Using sleep() before assertion
+❌ Not using locators properly
+ 
+ 
+---
+ 
+🔹 11. Advanced Tip
+ 
+You can chain locators:
+ 
+expect(page.locator("div.card >> text=Success")).to_be_visible()
+ 
+ 
+---
+ 
+🔚 Summary
+ 
+Playwright assertions:
+ 
+Are auto-waiting + retrying
+ 
+Make tests stable
+ 
+Work directly with locators and page
+ 
+ 
+ 
+---
+ 
+If you want, I can next explain: 👉 Assertion in **Robot Framework (Playwright Library)**
+👉 OR Interview questions on Playwright assertions
+👉 OR Real-time project scenarios

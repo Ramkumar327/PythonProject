@@ -1,0 +1,168 @@
+from playwright.sync_api import sync_playwright
+from datetime import datetime
+import time
+
+BASE_URL = "https://parabank.parasoft.com/parabank/register.htm"
+BROWSER_TYPE = "chromium"
+HEADLESS = False
+
+
+def test_case_1_register_with_valid_data():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=HEADLESS)
+        page = browser.new_page()
+        
+        try:
+            page.goto(BASE_URL, wait_until="networkidle")
+            
+            timestamp = datetime.now().strftime("%H%M%S")
+            
+            page.fill("input[name='customer.firstName']", "John")
+            page.fill("input[name='customer.lastName']", "Doe")
+            page.fill("input[name='customer.address.street']", "123 Main Street")
+            page.fill("input[name='customer.address.city']", "New York")
+            page.fill("input[name='customer.address.state']", "NY")
+            page.fill("input[name='customer.address.zipCode']", "10001")
+            page.fill("input[name='customer.phoneNumber']", "2125551234")
+            page.fill("input[name='customer.ssn']", "123456789")
+            page.fill("input[name='customer.username']", f"johndoe_{timestamp}")
+            page.fill("input[name='customer.password']", "SecurePass123!")
+            page.fill("input[name='confirm']", "SecurePass123!")
+            
+            page.click("input[value='Register']")
+            
+            page.wait_for_load_state("networkidle", timeout=10000)
+            time.sleep(1)
+            
+            welcome_text = page.locator("h1").inner_text()
+            assert "Welcome" in welcome_text
+            print("✓ TC-001: PASSED")
+            
+        except Exception as e:
+            print(f"✗ TC-001: FAILED - {str(e)}")
+            page.screenshot(path="tc_001_failure.png")
+            raise
+        finally:
+            browser.close()
+
+
+def test_case_2_register_with_missing_fields():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=HEADLESS)
+        page = browser.new_page()
+        
+        try:
+            page.goto(BASE_URL, wait_until="networkidle")
+            
+            timestamp = datetime.now().strftime("%H%M%S%f")[-5:]
+            
+            page.fill("input[name='customer.firstName']", "")
+            page.fill("input[name='customer.lastName']", "Smith")
+            page.fill("input[name='customer.address.street']", "456 Oak Ave")
+            page.fill("input[name='customer.address.city']", "Los Angeles")
+            page.fill("input[name='customer.address.state']", "CA")
+            page.fill("input[name='customer.address.zipCode']", "90001")
+            page.fill("input[name='customer.phoneNumber']", "3105559999")
+            page.fill("input[name='customer.ssn']", "987654321")
+            page.fill("input[name='customer.username']", f"test_{timestamp}")
+            page.fill("input[name='customer.password']", "TestPass123!")
+            page.fill("input[name='confirm']", "TestPass123!")
+            
+            page.click("input[value='Register']")
+            page.wait_for_timeout(2000)
+            
+            error_locator = page.locator(".error")
+            if error_locator.count() > 0:
+                error_text = error_locator.first.inner_text()
+                assert error_text
+            else:
+                first_name_input = page.locator("input[name='customer.firstName']")
+                assert first_name_input.count() > 0
+            
+            print("✓ TC-002: PASSED")
+            
+        except Exception as e:
+            print(f"✗ TC-002: FAILED - {str(e)}")
+            page.screenshot(path="tc_002_failure.png")
+            raise
+        finally:
+            browser.close()
+
+
+def test_case_3_register_with_invalid_phone_format():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=HEADLESS)
+        page = browser.new_page()
+        
+        try:
+            page.goto(BASE_URL, wait_until="networkidle")
+            
+            timestamp = datetime.now().strftime("%H%M%S%f")[-5:]
+            
+            page.fill("input[name='customer.firstName']", "Alice")
+            page.fill("input[name='customer.lastName']", "Johnson")
+            page.fill("input[name='customer.address.street']", "789 Elm St")
+            page.fill("input[name='customer.address.city']", "Chicago")
+            page.fill("input[name='customer.address.state']", "IL")
+            page.fill("input[name='customer.address.zipCode']", "60601")
+            
+            page.fill("input[name='customer.phoneNumber']", "invalid_phone_number")
+            
+            page.fill("input[name='customer.ssn']", "555555555")
+            page.fill("input[name='customer.username']", f"alice_{timestamp}")
+            page.fill("input[name='customer.password']", "TestPass456@")
+            page.fill("input[name='confirm']", "TestPass456@")
+            
+            page.click("input[value='Register']")
+            page.wait_for_timeout(2000)
+            
+            error_locator = page.locator(".error")
+            is_still_on_form = page.locator("input[name='customer.phoneNumber']").count() > 0
+            
+            assert error_locator.count() > 0 or is_still_on_form
+            
+            print("✓ TC-003: PASSED")
+            
+        except Exception as e:
+            print(f"✗ TC-003: FAILED - {str(e)}")
+            page.screenshot(path="tc_003_failure.png")
+            raise
+        finally:
+            browser.close()
+
+
+def run_all_tests():
+    results = {"TC-001": "NOT_RUN", "TC-002": "NOT_RUN", "TC-003": "NOT_RUN"}
+    
+    try:
+        test_case_1_register_with_valid_data()
+        results["TC-001"] = "PASSED"
+    except:
+        results["TC-001"] = "FAILED"
+    
+    try:
+        test_case_2_register_with_missing_fields()
+        results["TC-002"] = "PASSED"
+    except:
+        results["TC-002"] = "FAILED"
+    
+    try:
+        test_case_3_register_with_invalid_phone_format()
+        results["TC-003"] = "PASSED"
+    except:
+        results["TC-003"] = "FAILED"
+    
+    print("\n" + "="*50)
+    print("TEST SUMMARY")
+    print("="*50)
+    for tc, status in results.items():
+        symbol = "✓" if status == "PASSED" else "✗"
+        print(f"{symbol} {tc}: {status}")
+    
+    passed = sum(1 for v in results.values() if v == "PASSED")
+    print(f"\nTotal: {passed}/3 tests passed")
+    print("="*50)
+
+
+if __name__ == "__main__":
+    run_all_tests()
