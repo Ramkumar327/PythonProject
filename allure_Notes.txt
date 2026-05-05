@@ -1,0 +1,388 @@
+Allure Overview :
+==================
+Allure Report is a test reporting tool used with automation frameworks like Pytest, Selenium, JUnit, etc.
+It generates beautiful HTML reports showing:
+- Test results
+- Steps executed
+- Screenshots
+- Logs
+- Environment details
+- Test history
+
+Very useful in Automation Testing projects.
+
+Notes:
+Above to below line, we can import python inbuild functions 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+below to this we can import our custom functions
+
+
+Allure Architecture (How it Works)
+==============================
+Automation Test Run
+⬇
+Generate Allure Results Files (JSON files)
+⬇
+Allure CLI converts them
+⬇
+Interactive HTML Report
+
+
+Structure:
+===========
+
+Automation Tests
+      │
+      │
+pytest run
+      │
+      ▼
+allure-results (JSON files)
+      │
+      ▼
+allure generate
+      │
+      ▼
+Allure HTML Report
+
+Allure installation:
+=====================
+Java should be installed and set ENV Path
+install allure .zip > extract and keep it folder structure > copy the bin path and set ENV var
+allure --version
+
+After this
+pip install allure-pytest
+
+
+Commands:
+==========
+To generate result files
+- pytest --alluredir=allure-results
+
+To generate allure report
+- allure serve allure-results
+OR
+- allure generate allure-results -o allure-report
+- allure open allure-report
+
+
+Important Annotation:
+======================
+@allure.title()        - Test name
+@allure.description()  - Test Description
+@allure.step()         - Steps
+@allure.severity()     - Test importance
+@allure.feature()      - Feature name
+@allure.story()        - Story name
+@allure.link()         - External link
+
+
+Example :
+import allure
+
+@allure.feature("Login Module")
+@allure.story("Valid Login")
+@allure.severity(allure.severity_level.CRITICAL)
+def test_valid_login():
+   assert True
+
+Screenshot to report:
+======================
+Adding screenshot on report
+
+import allure
+
+allure.attach(
+    driver.get_screenshot_as_png(),
+    name="Screenshot",
+    attachment_type=allure.attachment_type.PNG
+)
+
+2. Adding screenshot on report when failure (In conftest.py)
+import pytest
+import allure
+
+@pytest.hookimpl(hookwrapper=True)
+
+def pytest_runtest_makereport(item, call):
+
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.when == "call" and report.failed:
+
+        driver = item.funcargs['driver']
+
+        allure.attach(
+            driver.get_screenshot_as_png(),
+            name="Failure Screenshot",
+            attachment_type=allure.attachment_type.PNG
+        )
+
+
+
+Allure Report Sections:
+========================
+When report opens you will see:
+Overview
+Total tests
+Passed
+Failed
+Broken
+Skipped
+
+Categories - Failure types.
+Suites - Test grouping.
+Graphs - Execution graphs.
+Timeline - Parallel execution timeline.
+Behaviors - Feature / Story view.
+
+
+Allure severity levels:
+========================
+BLOCKER
+CRITICAL
+NORMAL
+MINOR
+TRIVIAL
+
+@allure.severity(allure.severity_level.CRITICAL)
+
+
+Environment Information
+========================
+Create file: allure-results/environment.properties
+Example code:
+
+"""
+Browser=Chrome
+Environment=QA
+URL=https://testsite.com
+Tester=Ramkumar
+"""
+
+Appears in report.
+
+
+Attach Logs / Files
+=====================
+Attach text log:
+allure.attach(
+    "Login successful",
+    name="Log",
+    attachment_type=allure.attachment_type.TEXT
+)
+
+
+Attach file:
+allure.attach.file(
+    "log.txt",
+    name="Log File",
+    attachment_type=allure.attachment_type.TEXT
+)
+
+screenshot = driver.get_screenshot_as_png()
+allure.attach(screenshot, name="Documents Section", attachment_type=allure.attachment_type.PNG)
+
+
+Allure in CI/CD
+=================
+Used with:
+Jenkins
+GitHub Actions
+GitLab CI
+
+Jenkins command
+pytest --alluredir=allure-results
+allure generate allure-results
+Then publish report.
+
+
+Allure Report Advantages
+==========================
+✅ Beautiful reports
+✅ Easy debugging
+✅ Screenshot support
+✅ Step level visibility
+✅ CI/CD integration
+✅ History tracking
+
+Common Interview Questions
+============================
+1. What is Allure Report?
+Test reporting framework generating interactive HTML reports.
+
+2. How Allure works with pytest?
+Using allure-pytest plugin.
+
+3. How to capture screenshot in Allure?
+Using allure.attach().
+
+4. How to generate report?
+pytest --alluredir=allure-results
+allure serve allure-results
+
+
+Real Time Workflow Automation execution:
+=====================================
+pytest --alluredir=allure-results
+allure generate allure-results -o allure-report
+allure open allure-report
+
+
+
+pytest.ini
+===========
+This is the configuration file. For every run, html report will be generated with detail step
+
+[pytest]
+
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+
+markers =
+    smoke: mark a test as part of the smoke test suite
+    regression: mark a test as part of the regression test suite
+    skip: mark a test to be skipped
+    skipif: mark a test to be conditionally skipped
+    xfail: mark a test as expected to fail
+
+addopts = 
+    --strict-markers
+    --tb=short
+    -v
+    --alluredir=./allure-results
+    --clean-alluredir
+
+# Suppress all warnings
+filterwarnings =
+    ignore::DeprecationWarning
+    ignore::PendingDeprecationWarning
+    ignore::RuntimeWarning
+    ignore::UserWarning
+    ignore
+
+
+conftest.py
+============
+import pytest
+import allure
+from datetime import datetime
+import os
+import shutil
+import subprocess
+
+
+def pytest_configure(config):
+    """Clean old allure results directory and configure pytest"""
+    allure_dir = "./allure-results"
+    if os.path.exists(allure_dir):
+        shutil.rmtree(allure_dir)
+        print(f"\nCleaned old allure results from {allure_dir}")
+    os.makedirs(allure_dir, exist_ok=True)
+    
+    # Configure pytest with custom markers and settings
+    config.addinivalue_line(
+        "markers", "regression: mark test as a regression test"
+    )
+    config.addinivalue_line(
+        "markers", "smoke: mark test as a smoke test"
+    )
+    config.addinivalue_line(
+        "markers", "critical: mark test as a critical test"
+    )
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Generate Allure report after test session completes"""
+    # Use absolute paths
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    allure_results_dir = os.path.join(current_dir, "allure-results")
+    allure_report_dir = os.path.join(current_dir, "allure-report")
+    
+    if os.path.exists(allure_results_dir) and os.listdir(allure_results_dir):
+        try:
+            print(f"\n{'='*60}")
+            print("Generating Allure report...")
+            print(f"{'='*60}")
+            
+            # Run allure generate command with full paths
+            result = subprocess.run(
+                ["allure", "generate", allure_results_dir, "-o", allure_report_dir, "--clean"],
+                capture_output=True,
+                text=True,
+                shell=True
+            )
+            
+            if result.returncode == 0:
+                print(f"\n✓ Allure report generated successfully!")
+                print(f"✓ Report location: {allure_report_dir}")
+                print(f"✓ To open the report, run: allure open {allure_report_dir}")
+                print(f"{'='*60}\n")
+            else:
+                print(f"\n⚠ Allure generation had issues:")
+                print(f"STDOUT: {result.stdout}")
+                print(f"STDERR: {result.stderr}")
+                print(f"Return code: {result.returncode}")
+                print(f"{'='*60}\n")
+                
+        except Exception as e:
+            print(f"\n⚠ Error generating Allure report: {e}")
+            print("Make sure 'allure' command-line tool is installed:")
+            print("  - Windows (via chocolatey): choco install allure")
+            print("  - Or: npm install -g allure-commandline")
+            print(f"{'='*60}\n")
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Generate report for test execution"""
+    outcome = yield
+    rep = outcome.get_result()
+    
+    # Attach screenshot on test failure
+    if rep.failed and call.when == "call":
+        allure.attach(
+            "Test failed - see logs for details",
+            name="failure_info",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection to add markers"""
+    for item in items:
+        if "create_asset_test" in item.nodeid:
+            item.add_marker(pytest.mark.regression)
+        if "view_upload_test" in item.nodeid:
+            item.add_marker(pytest.mark.regression)
+        if "SMT_excel_test" in item.nodeid or "test_automate_smt_template" in item.nodeid:
+            item.add_marker(pytest.mark.regression)
+            
+
+
+
+
+Realtime Example1 :
+====================
+import pytest
+import allure
+
+@allure.title("Login Test")
+@allure.description("Verify user login functionality")
+
+def test_login():
+    
+    with allure.step("Open login page"):
+        print("Opening page")
+
+    with allure.step("Enter username"):
+        print("Entering username")
+
+    with allure.step("Enter password"):
+        print("Entering password")
+
+    with allure.step("Click login"):
+        print("Click login")
