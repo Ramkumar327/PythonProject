@@ -1,0 +1,155 @@
+MySQL:
+=======
+
+
+install :
+- pip install mysql-connector-python
+
+Library :
+- import mysql.connector
+- from mysql.connector import Error
+
+
+Creating connection obj with mysql DB:
+
+
+    try:
+       connection = mysql.connector.connect(
+           host="localhost",
+           user="root",
+           password="changeme",
+           database="hexaware"
+       )
+       if connection.is_connected():
+           print("Connected to MySQL database...")
+           return connection
+
+    except Error as e:
+       print(f"Error: {e}")
+
+CREATE DATABASE:
+    cursor = connection.cursor()
+    query = "CREATE DATABASE IF NOT EXISTS hexaware;"
+    cursor.execute(query)
+
+
+SELECT ALL:
+
+    cursor = connection.cursor() #norally tuple format # cursor = connection.cursor(dictionary=True) in dict format
+    query = "Select * from employee_list;"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+SELECT ONE:
+
+    cursor = connection.cursor() 
+    query = "Select * from employee_list where id=1;"
+    cursor.execute(query)
+    row = cursor.fetchone()
+
+
+SELECT WITH COND:
+    cursor = connection.cursor()
+    query = "Select * from employee_list where emp_name=%s;"
+    cursor.execute(query,(data,))
+    rows = cursor.fetchall() # cursor.fetchone() is for fetching one record
+
+FETCH:
+    cursor = connection.cursor()
+    query = "Select * from employee_list;"
+    cursor.execute(query)
+    rows = cursor.fetchone()  //return one record in tuple format
+    rows = cursor.fetchmany(2)  //return n record in list of tuple format
+    rows = cursor.fetchall()  //return all record in list of tuple format
+
+
+    cursor = connection.cursor(dictionary=True)
+    query = "Select * from employee_list;"
+    cursor.execute(query)
+    rows = cursor.fetchone()  //return one record in dict format
+    rows = cursor.fetchmany(2)  //return n record in list of dict format
+    rows = cursor.fetchall()  //return all record in list of dict format
+    
+
+    rows = cursor.fetchone()  //return the first record
+    rows = cursor.fetchall()  // return from 2nd record onwards. not first one
+
+
+
+
+
+
+INSERT
+
+    cursor = connection.cursor()
+    query = "insert into employee_list(emp_name) values(%s);"
+    cursor.execute(query,(data,))
+    connection.commit()
+    print(cursor.rowcount)
+
+INSERT MANY
+    cursor = connection.cursor()
+    query = "insert into employee_list(emp_name) values(%s);"
+    lst_of_tpl_data = [("Ram",),("Then",),("Lak",),("Amma",)]
+    cursor.executemany(query,(lst_of_tpl_data))
+    connection.commit()
+    print(cursor.rowcount)
+
+UPDATE:
+
+    cursor = connection.cursor()
+    query = "update employee_list set emp_name=%s where emp_name=%s;"
+    cursor.execute(query,(newdata,olddata))
+    connection.commit()
+    print(cursor.rowcount)
+
+DELETE:
+
+    cursor = connection.cursor()
+    query = "delete from employee_list where emp_name=%s;"
+    cursor.execute(query,(data,))
+    connection.commit()
+    print(cursor.rowcount)
+
+
+CLEAN:
+
+    cursor = connection.cursor()
+    query = "truncate employee_list;"
+    cursor.execute(query)
+    connection.commit()
+
+
+Close:
+    cursor.close()
+    connection.close()
+
+
+
+
+
+
+SQL Injection :
+================
+user_id = '1 OR 1=1'
+query = f"delete from users where id = {user_id}"
+cursor.execute(query)
+
+output:--->
+delete from users where id = 1 OR 1=1
+
+=> As result, it delete all the records
+
+
+to avoid we have to use below way
+
+user_id = '1 OR 1=1'
+query = f"delete from users where id = %s"
+cursor.execute(query, (user_id,))
+
+
+output:--->
+delete from users where id = "1 OR 1=1" // entire is consider are a string
+
+
+=> As result, it delete the record whose ID is matching with '1 OR 1=1'

@@ -1,0 +1,89 @@
+import mysql.connector
+from mysql.connector import Error
+
+
+def get_connection(host,user,password,database):
+    try:
+       connection = mysql.connector.connect(
+           host=host,
+           user=user,
+           password=password,
+           database=database
+       )
+       if connection.is_connected():
+           print("Connected to MySQL database...")
+           return connection
+
+    except Error as e:
+       print(f"Error: {e}")
+
+def fetch_all_records(connection):
+    cursor = connection.cursor()
+    query = "Select * from employee_list;"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    return rows
+def fetch_records_based_on_cond(connection, data):
+    cursor = connection.cursor()
+    query = "Select * from employee_list where emp_name=%s;"
+    cursor.execute(query,(data,))
+    rows = cursor.fetchall()
+    return rows
+def insert_record(connection, data):
+    cursor = connection.cursor()
+    query = "insert into employee_list(emp_name) values(%s);"
+    cursor.execute(query,(data,))
+    connection.commit()
+    return cursor.rowcount
+
+def update_record(connection, olddata, newdata):
+    cursor = connection.cursor()
+    query = "update employee_list set emp_name=%s where emp_name=%s;"
+    cursor.execute(query,(newdata,olddata))
+    connection.commit()
+    return cursor.rowcount
+
+def delete_record(connection, data):
+    cursor = connection.cursor()
+    query = "delete from employee_list where emp_name=%s;"
+    cursor.execute(query,(data,))
+    connection.commit()
+    return cursor.rowcount
+
+def clean_data(connection):
+    cursor = connection.cursor()
+    query = "truncate employee_list;"
+    cursor.execute(query)
+    connection.commit()
+
+
+# if __name__ == "__main__":
+#     connection = get_connection("localhost", "root", "changeme", "hexaware")
+#     if connection:
+#         rows = fetch_all_records(connection)
+#         for row in rows:
+#             print(row)
+#
+#         rows = fetch_records_based_on_cond(connection,"Demo Test")
+#         for row in rows:
+#             print("->",row)
+#
+#
+#         no_of_record_inserted = insert_record(connection,"Ramkumar")
+#         print("no of record inserted is :: ",no_of_record_inserted)
+#
+#         no_of_record_inserted = insert_record(connection, "Thenmozhi")
+#         print("no of record inserted is :: ",no_of_record_inserted)
+#
+#         no_of_record_updated = update_record(connection, "Thenmozhi V", "Thenmozhi")
+#         print("no of record updated is :: ",no_of_record_updated)
+#
+#         no_of_record_deleted = delete_record(connection, "Thenmozhi V")
+#         print("no of record deleted is :: ",no_of_record_deleted)
+#
+#         if connection.is_connected():
+#             connection.close()
+#             print("Connection has been closed successfully...")
+#
+#     else:
+#         print("Connection failed")

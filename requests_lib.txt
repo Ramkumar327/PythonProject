@@ -1,0 +1,277 @@
+✅What is requests?
+The requests library is used for sending HTTP requests in Python. It is the most popular and user-friendly HTTP client 
+library.
+             
+installation :
+================
+pip install requests
+
+
+Basic syntax:
+==============
+response = requests.method(url, **kwargs)
+
+where kwargs includes:
+headers
+params
+data
+json
+auth
+cookies
+files
+timeout
+
+
+headers = {
+    "Authorization": "Bearer token123",
+    "Content-Type": "application/json"
+}
+ 
+params = {
+    "page": 1,
+    "limit": 10
+}
+ 
+json_payload = {
+    "name": "Ram",
+    "age": 27
+}
+ 
+form_data = {
+    "username": "ram",
+    "password": "1234"
+}
+ 
+files = {
+    "file": open("test.txt", "rb")
+}
+
+cookies = response.cookies
+
+response = requests.method(url, headers=headers, auth=HTTPBasicAuth("username","password"), params=params, data=form_data, files=files, cookies=cookies, timeout=5)
+ 
+
+
+Basic HTTP Methods:
+=====================
+1. GET Request
+
+import requests
+response = requests.get('https://jsonplaceholder.typicode.com/posts')
+print(response.status_code)
+print(response.json())  # Or response.text for raw text
+
+
+2. POST Request
+
+payload = {'title': 'foo', 'body': 'bar', 'userId': 1}
+response = requests.post('https://jsonplaceholder.typicode.com/posts', json=payload)
+print(response.json())
+
+
+3. PUT Request
+
+update_data = {'id': 1, 'title': 'updated title', 'body': 'new body', 'userId': 1}
+response = requests.put('https://jsonplaceholder.typicode.com/posts/1', json=update_data)
+print(response.json())
+
+
+4. DELETE Request
+
+response = requests.delete('https://jsonplaceholder.typicode.com/posts/1')
+print(response.status_code)
+
+
+
+Headers & Authentication:
+==========================
+1. Custom Headers
+
+headers = {'Authorization': 'Bearer your_token'}
+response = requests.get('https://api.example.com/data', headers=headers)
+print(response.json())
+
+
+2. Basic Authentication
+
+from requests.auth import HTTPBasicAuth
+response = requests.get('https://httpbin.org/basic-auth/user/pass', auth=HTTPBasicAuth('user', 'pass'))
+print(response.json())
+
+
+Sending Data:
+==============
+1. params –for URL parameters in GET
+
+params = {'q': 'python', 'sort': 'desc'}
+response = requests.get('https://api.github.com/search/repositories', params=params)
+print(response.url)  # Full URL
+
+2. data –for form data
+
+form_data = {'username': 'admin', 'password': '123'}
+response = requests.post('https://httpbin.org/post', data=form_data)
+print(response.json())
+
+
+3. json –for JSON data
+
+json_data = {'key': 'value'}
+response = requests.post('https://httpbin.org/post', json=json_data)
+print(response.json())
+
+
+4. File Upload
+
+
+files = {'file': open('example.txt', 'rb')}
+response = requests.post('https://httpbin.org/post', files=files)
+print(response.json())
+
+Example :
+==========
+import requests
+from requests.auth import HTTPBasicAuth
+response = requests.get('https://10.198.77.161/api/versions', 
+auth=requests.auth.HTTPBasicAuth('administrator@system',  'Chang3M3Now.'), verify=False )  # <--disables SSL cert check
+print(response.status_code)
+print(response.text)  # Use .text to avoid JSONDecodeError if response
+ 
+
+                       
+Response:
+============
+response = requests.get('https://jsonplaceholder.typicode.com/posts/1')
+print(response.status_code)
+print(response.headers)
+print(response.url)
+print(response.text)
+print(response.json())
+
+
+Exception:
+============
+try:
+    response = requests.get('https://httpbin.org/delay/10', timeout=5)
+except requests.exceptions.Timeout:
+    print("Request timed out")
+ 
+
+Session Object (To Persist Headers, Cookies)
+==============================================
+
+
+//with session
+session = requests.Session()
+session.headers.update({'Authorization': 'Bearer abc123'})
+response = session.get(url1)
+response2 = session.get(url2)
+print(response.json())
+print(response2.json())
+
+
+//without session
+response = requests.get(url1, headers=headers)
+response2 = requests.get(url2, headers=headers)
+
+Similarly we have 
+=> session.auth = HTTPBasicAuth("user","Pass")
+=> session.params = {"lang": "en"}
+
+
+Example 1:
+-----------
+session = requests.Session()
+ 
+# Step 1: Login
+login_url = "https://example.com/login"
+ 
+payload = {
+    "username": "ram",
+    "password": "1234"
+}
+ 
+response = session.post(login_url, data=payload)
+ 
+# Step 2: Session stores cookies automatically
+print(session.cookies)
+ 
+# Step 3: Access protected API
+dashboard = session.get("https://example.com/dashboard")
+ 
+print(dashboard.text)
+
+
+Key points:
+------------
+- After login, server send session cookie
+- it will be stored in session object
+- In the next request, it will automatically it will use it
+
+
+//Without session:
+
+r1 = requests.post(login_url, data=payload)
+cookies = r1.cookies
+requests.get(dashboard_url, cookies=cookies)
+
+
+// With session:
+
+session.post(login_url, data=payload)
+session.get(dashboard_url)
+
+✔ Automatically handled
+✔ Cleaner code
+
+
+
+
+Handling Exceptions
+======================
+try:
+    response = requests.get('https://example.com', timeout=5)
+    response.raise_for_status()  # Raises HTTPError for bad responses
+except requests.exceptions.RequestException as e:
+    print(f"Error: {e}")
+ 
+
+Practical Use Case –Downloading an Image
+==========================================
+img_url = 'https://httpbin.org/image/png'
+response = requests.get(img_url)
+with open('image.png', 'wb') as f:
+    f.write(response.content)
+ 
+Practice APIs You Can Use
+===========================
+https://jsonplaceholder.typicode.com/ •
+https://httpbin.org/ •
+https://reqres.in/ •
+ 
+Custom Retry Strategy (via urllib3)
+====================================
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+session = requests.Session()
+retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+response = session.get('https://httpbin.org/status/500')
+print(response.status_code)
+
+
+
+ 
+Summary Table:
+===================
+Feature Code Snippet
+GET requests.get(url)
+POST requests.post(url, data/json)
+Headers headers={'key': 'value'}
+Timeout timeout=5
+File Upload files={'file': open()}
+JSON Response response.json()
+Session Object requests.Session()
+Auth auth=HTTPBasicAuth()
